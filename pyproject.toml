@@ -7,16 +7,10 @@ description = "This app consist of CME Customization"
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
-dependencies = [
-    # "frappe~=16.0.0" # Installed and managed by bench.
-]
 
 [build-system]
 requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
-
-[tool.bench.frappe-dependencies]
-frappe = ">=16.0.0-dev,<=17.0.0-dev"
 
 [tool.ruff]
 line-length = 110
@@ -58,3 +52,7 @@ typing-modules = ["frappe.types.DF"]
 quote-style = "double"
 indent-style = "tab"
 docstring-code-format = true
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0,<17.0.0"
+erpnext = ">=16.0.0,<17.0.0"
