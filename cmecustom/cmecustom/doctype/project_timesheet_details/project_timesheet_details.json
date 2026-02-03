@@ -1,0 +1,166 @@
+{
+ "actions": [],
+ "creation": "2026-02-03 10:00:00.000000",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "employee_section",
+  "employee",
+  "employee_name",
+  "external_worker_name",
+  "column_break_employee",
+  "project",
+  "designation",
+  "time_section",
+  "checkin",
+  "checkout",
+  "column_break_time",
+  "checkin_2",
+  "checkout_2",
+  "hours_section",
+  "break_hours",
+  "working_hours",
+  "column_break_hours",
+  "overtime",
+  "timesheet",
+  "remarks"
+ ],
+ "fields": [
+  {
+   "fieldname": "employee_section",
+   "fieldtype": "Section Break",
+   "label": "Employee Details"
+  },
+  {
+   "fieldname": "employee",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Employee",
+   "options": "Employee"
+  },
+  {
+   "fetch_from": "employee.employee_name",
+   "fieldname": "employee_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Employee Name",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval:!doc.employee",
+   "fieldname": "external_worker_name",
+   "fieldtype": "Data",
+   "label": "External Worker Name"
+  },
+  {
+   "fieldname": "column_break_employee",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Project",
+   "options": "Project"
+  },
+  {
+   "fetch_from": "employee.designation",
+   "fieldname": "designation",
+   "fieldtype": "Link",
+   "label": "Designation",
+   "options": "Designation",
+   "read_only": 1
+  },
+  {
+   "fieldname": "time_section",
+   "fieldtype": "Section Break",
+   "label": "Time Details"
+  },
+  {
+   "default": "08:00:00",
+   "fieldname": "checkin",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Check In"
+  },
+  {
+   "default": "17:00:00",
+   "fieldname": "checkout",
+   "fieldtype": "Time",
+   "in_list_view": 1,
+   "label": "Check Out"
+  },
+  {
+   "fieldname": "column_break_time",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "checkin_2",
+   "fieldtype": "Time",
+   "label": "Check In 2"
+  },
+  {
+   "fieldname": "checkout_2",
+   "fieldtype": "Time",
+   "label": "Check Out 2"
+  },
+  {
+   "fieldname": "hours_section",
+   "fieldtype": "Section Break",
+   "label": "Hours"
+  },
+  {
+   "default": "1",
+   "fieldname": "break_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Break Hours",
+   "precision": "2"
+  },
+  {
+   "fieldname": "working_hours",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Working Hours",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "column_break_hours",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "overtime",
+   "fieldtype": "Float",
+   "in_list_view": 1,
+   "label": "Overtime",
+   "precision": "2",
+   "read_only": 1
+  },
+  {
+   "fieldname": "timesheet",
+   "fieldtype": "Link",
+   "label": "Timesheet",
+   "options": "Timesheet",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-02-03 10:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Cmecustom",
+ "name": "Project Timesheet Details",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "idx",
+ "sort_order": "ASC",
+ "states": []
+}
