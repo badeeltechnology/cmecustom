@@ -9,7 +9,7 @@ frappe.query_reports["Project Timesheet Monthly"] = {
 			fieldtype: "Link",
 			options: "Company",
 			default: frappe.defaults.get_user_default("Company"),
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "year",
@@ -17,7 +17,7 @@ frappe.query_reports["Project Timesheet Monthly"] = {
 			fieldtype: "Select",
 			options: get_year_options(),
 			default: new Date().getFullYear().toString(),
-			reqd: 1
+			reqd: 1,
 		},
 		{
 			fieldname: "month",
@@ -35,18 +35,18 @@ frappe.query_reports["Project Timesheet Monthly"] = {
 				{ value: "09", label: __("September") },
 				{ value: "10", label: __("October") },
 				{ value: "11", label: __("November") },
-				{ value: "12", label: __("December") }
+				{ value: "12", label: __("December") },
 			],
-			default: String(new Date().getMonth() + 1).padStart(2, '0'),
-			reqd: 1
+			default: String(new Date().getMonth() + 1).padStart(2, "0"),
+			reqd: 1,
 		},
 		{
 			fieldname: "project",
 			label: __("Project"),
 			fieldtype: "Link",
-			options: "Project"
-		}
-	]
+			options: "Project",
+		},
+	],
 };
 
 function get_year_options() {

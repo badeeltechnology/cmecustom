@@ -4,7 +4,7 @@
 import frappe
 from frappe import _
 from frappe.model.document import Document
-from frappe.utils import flt, time_diff_in_hours, get_time
+from frappe.utils import flt, get_time, time_diff_in_hours
 
 
 class ProjectTimesheet(Document):
@@ -38,7 +38,9 @@ class ProjectTimesheet(Document):
 				)
 			if row.employee and row.external_worker_name:
 				frappe.throw(
-					_("Row {0}: Please select either Employee or External Worker Name, not both").format(row.idx)
+					_("Row {0}: Please select either Employee or External Worker Name, not both").format(
+						row.idx
+					)
 				)
 
 	def validate_duplicate_employee(self):
@@ -62,24 +64,26 @@ class ProjectTimesheet(Document):
 
 		# Check for overlaps within each employee's entries
 		overlap_errors = []
-		for employee, rows in rows_by_employee.items():
+		for _employee, rows in rows_by_employee.items():
 			if len(rows) < 2:
 				continue
 
 			for i, row1 in enumerate(rows):
-				for row2 in rows[i + 1:]:
+				for row2 in rows[i + 1 :]:
 					# Check first shift overlap
 					if row1.checkin and row1.checkout and row2.checkin and row2.checkout:
 						if self.times_overlap(row1.checkin, row1.checkout, row2.checkin, row2.checkout):
-							overlap_errors.append({
-								"employee": row1.employee_name or row1.employee,
-								"row1_idx": row1.idx,
-								"row1_time": f"{row1.checkin} - {row1.checkout}",
-								"row1_project": row1.project or "No Project",
-								"row2_idx": row2.idx,
-								"row2_time": f"{row2.checkin} - {row2.checkout}",
-								"row2_project": row2.project or "No Project"
-							})
+							overlap_errors.append(
+								{
+									"employee": row1.employee_name or row1.employee,
+									"row1_idx": row1.idx,
+									"row1_time": f"{row1.checkin} - {row1.checkout}",
+									"row1_project": row1.project or "No Project",
+									"row2_idx": row2.idx,
+									"row2_time": f"{row2.checkin} - {row2.checkout}",
+									"row2_project": row2.project or "No Project",
+								}
+							)
 
 		if overlap_errors:
 			error_msg = _("<b>Error: Overlapping times for same employee!</b><br><br>")
@@ -96,7 +100,7 @@ class ProjectTimesheet(Document):
 					e["row1_project"],
 					e["row2_idx"],
 					e["row2_time"],
-					e["row2_project"]
+					e["row2_project"],
 				)
 			frappe.throw(error_msg, title=_("Time Overlap Error"))
 
@@ -109,7 +113,8 @@ class ProjectTimesheet(Document):
 				continue
 
 			# Get other timesheet entries for this employee on the same date
-			existing_entries = frappe.db.sql("""
+			existing_entries = frappe.db.sql(
+				"""
 				SELECT
 					pt.name as timesheet_name,
 					ptd.checkin,
@@ -123,54 +128,71 @@ class ProjectTimesheet(Document):
 				AND pt.docstatus = 1
 				AND pt.name != %s
 				AND ptd.employee = %s
-			""", (self.date, self.name, row.employee), as_dict=True)
+			""",
+				(self.date, self.name, row.employee),
+				as_dict=True,
+			)
 
 			for entry in existing_entries:
 				# Check overlap for first shift
 				if self.times_overlap(row.checkin, row.checkout, entry.checkin, entry.checkout):
-					overlap_warnings.append({
-						"employee": row.employee_name or row.employee,
-						"row_idx": row.idx,
-						"current_time": f"{row.checkin} - {row.checkout}",
-						"current_project": row.project or "No Project",
-						"existing_timesheet": entry.timesheet_name,
-						"existing_time": f"{entry.checkin} - {entry.checkout}",
-						"existing_project": entry.project or "No Project"
-					})
+					overlap_warnings.append(
+						{
+							"employee": row.employee_name or row.employee,
+							"row_idx": row.idx,
+							"current_time": f"{row.checkin} - {row.checkout}",
+							"current_project": row.project or "No Project",
+							"existing_timesheet": entry.timesheet_name,
+							"existing_time": f"{entry.checkin} - {entry.checkout}",
+							"existing_project": entry.project or "No Project",
+						}
+					)
 
 				# Check overlap with second shift of existing entry
 				if entry.checkin_2 and entry.checkout_2:
 					checkin_2 = get_time(entry.checkin_2)
 					checkout_2 = get_time(entry.checkout_2)
-					if not (checkin_2.hour == 0 and checkin_2.minute == 0 and
-							checkout_2.hour == 0 and checkout_2.minute == 0):
+					if not (
+						checkin_2.hour == 0
+						and checkin_2.minute == 0
+						and checkout_2.hour == 0
+						and checkout_2.minute == 0
+					):
 						if self.times_overlap(row.checkin, row.checkout, entry.checkin_2, entry.checkout_2):
-							overlap_warnings.append({
-								"employee": row.employee_name or row.employee,
-								"row_idx": row.idx,
-								"current_time": f"{row.checkin} - {row.checkout}",
-								"current_project": row.project or "No Project",
-								"existing_timesheet": entry.timesheet_name,
-								"existing_time": f"{entry.checkin_2} - {entry.checkout_2}",
-								"existing_project": entry.project or "No Project"
-							})
+							overlap_warnings.append(
+								{
+									"employee": row.employee_name or row.employee,
+									"row_idx": row.idx,
+									"current_time": f"{row.checkin} - {row.checkout}",
+									"current_project": row.project or "No Project",
+									"existing_timesheet": entry.timesheet_name,
+									"existing_time": f"{entry.checkin_2} - {entry.checkout_2}",
+									"existing_project": entry.project or "No Project",
+								}
+							)
 
 				# Check current second shift overlap if exists
 				if row.checkin_2 and row.checkout_2:
 					checkin_2 = get_time(row.checkin_2)
 					checkout_2 = get_time(row.checkout_2)
-					if not (checkin_2.hour == 0 and checkin_2.minute == 0 and
-							checkout_2.hour == 0 and checkout_2.minute == 0):
+					if not (
+						checkin_2.hour == 0
+						and checkin_2.minute == 0
+						and checkout_2.hour == 0
+						and checkout_2.minute == 0
+					):
 						if self.times_overlap(row.checkin_2, row.checkout_2, entry.checkin, entry.checkout):
-							overlap_warnings.append({
-								"employee": row.employee_name or row.employee,
-								"row_idx": row.idx,
-								"current_time": f"{row.checkin_2} - {row.checkout_2}",
-								"current_project": row.project or "No Project",
-								"existing_timesheet": entry.timesheet_name,
-								"existing_time": f"{entry.checkin} - {entry.checkout}",
-								"existing_project": entry.project or "No Project"
-							})
+							overlap_warnings.append(
+								{
+									"employee": row.employee_name or row.employee,
+									"row_idx": row.idx,
+									"current_time": f"{row.checkin_2} - {row.checkout_2}",
+									"current_project": row.project or "No Project",
+									"existing_timesheet": entry.timesheet_name,
+									"existing_time": f"{entry.checkin} - {entry.checkout}",
+									"existing_project": entry.project or "No Project",
+								}
+							)
 
 		# Show warning message if overlaps found
 		if overlap_warnings:
@@ -187,7 +209,7 @@ class ProjectTimesheet(Document):
 					w["current_project"],
 					w["existing_timesheet"],
 					w["existing_time"],
-					w["existing_project"]
+					w["existing_project"],
 				)
 			frappe.msgprint(warning_msg, title=_("Time Overlap Warning"), indicator="orange")
 
@@ -219,8 +241,12 @@ class ProjectTimesheet(Document):
 				checkin_2 = get_time(row.checkin_2)
 				checkout_2 = get_time(row.checkout_2)
 				# Only calculate if times are not 00:00:00
-				if not (checkin_2.hour == 0 and checkin_2.minute == 0 and
-						checkout_2.hour == 0 and checkout_2.minute == 0):
+				if not (
+					checkin_2.hour == 0
+					and checkin_2.minute == 0
+					and checkout_2.hour == 0
+					and checkout_2.minute == 0
+				):
 					shift2_hours = time_diff_in_hours(row.checkout_2, row.checkin_2)
 					if shift2_hours > 0:
 						total_hours += shift2_hours
@@ -262,7 +288,11 @@ class ProjectTimesheet(Document):
 				# Use "External" employee for external workers
 				external_emp = frappe.db.get_value("Employee", {"employee_name": "External"}, "name")
 				if not external_emp:
-					frappe.throw(_("Employee 'External' not found. Please create an Employee with name 'External' for external worker timesheets."))
+					frappe.throw(
+						_(
+							"Employee 'External' not found. Please create an Employee with name 'External' for external worker timesheets."
+						)
+					)
 				employee = external_emp
 				worker_name = row.external_worker_name
 				is_external = True
@@ -289,25 +319,31 @@ class ProjectTimesheet(Document):
 
 			# Add time log for regular hours
 			regular_end_time = from_time + timedelta(hours=regular_hours + flt(row.break_hours))
-			timesheet.append("time_logs", {
-				"activity_type": self.get_activity_type("Regular"),
-				"from_time": from_time,
-				"to_time": regular_end_time,
-				"hours": regular_hours,
-				"project": row.project,
-				"description": f"Regular hours: {base_desc}"
-			})
+			timesheet.append(
+				"time_logs",
+				{
+					"activity_type": self.get_activity_type("Regular"),
+					"from_time": from_time,
+					"to_time": regular_end_time,
+					"hours": regular_hours,
+					"project": row.project,
+					"description": f"Regular hours: {base_desc}",
+				},
+			)
 
 			# Add separate time log for overtime if exists
 			if overtime_hours > 0:
-				timesheet.append("time_logs", {
-					"activity_type": self.get_activity_type("Overtime"),
-					"from_time": regular_end_time,
-					"to_time": to_time,
-					"hours": overtime_hours,
-					"project": row.project,
-					"description": f"Overtime: {base_desc}"
-				})
+				timesheet.append(
+					"time_logs",
+					{
+						"activity_type": self.get_activity_type("Overtime"),
+						"from_time": regular_end_time,
+						"to_time": to_time,
+						"hours": overtime_hours,
+						"project": row.project,
+						"description": f"Overtime: {base_desc}",
+					},
+				)
 
 			timesheet.flags.ignore_validate = True
 			timesheet.insert(ignore_permissions=True)

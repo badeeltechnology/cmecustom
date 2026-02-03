@@ -27,103 +27,57 @@ def format_number(value):
 
 def get_columns():
 	return [
-		{
-			"label": _("Date"),
-			"fieldname": "date",
-			"fieldtype": "Date",
-			"width": 100
-		},
+		{"label": _("Date"), "fieldname": "date", "fieldtype": "Date", "width": 100},
 		{
 			"label": _("Project Timesheet"),
 			"fieldname": "project_timesheet",
 			"fieldtype": "Link",
 			"options": "Project Timesheet",
-			"width": 150
+			"width": 150,
 		},
 		{
 			"label": _("Employee ID"),
 			"fieldname": "employee",
 			"fieldtype": "Link",
 			"options": "Employee",
-			"width": 120
+			"width": 120,
 		},
-		{
-			"label": _("Employee/Worker Name"),
-			"fieldname": "worker_name",
-			"fieldtype": "Data",
-			"width": 180
-		},
-		{
-			"label": _("Type"),
-			"fieldname": "worker_type",
-			"fieldtype": "Data",
-			"width": 80
-		},
+		{"label": _("Employee/Worker Name"), "fieldname": "worker_name", "fieldtype": "Data", "width": 180},
+		{"label": _("Type"), "fieldname": "worker_type", "fieldtype": "Data", "width": 80},
 		{
 			"label": _("Project"),
 			"fieldname": "project",
 			"fieldtype": "Link",
 			"options": "Project",
-			"width": 120
+			"width": 120,
 		},
-		{
-			"label": _("Check In"),
-			"fieldname": "checkin",
-			"fieldtype": "Data",
-			"width": 80
-		},
-		{
-			"label": _("Check Out"),
-			"fieldname": "checkout",
-			"fieldtype": "Data",
-			"width": 80
-		},
-		{
-			"label": _("Check In 2"),
-			"fieldname": "checkin_2",
-			"fieldtype": "Data",
-			"width": 80
-		},
-		{
-			"label": _("Check Out 2"),
-			"fieldname": "checkout_2",
-			"fieldtype": "Data",
-			"width": 80
-		},
+		{"label": _("Check In"), "fieldname": "checkin", "fieldtype": "Data", "width": 80},
+		{"label": _("Check Out"), "fieldname": "checkout", "fieldtype": "Data", "width": 80},
+		{"label": _("Check In 2"), "fieldname": "checkin_2", "fieldtype": "Data", "width": 80},
+		{"label": _("Check Out 2"), "fieldname": "checkout_2", "fieldtype": "Data", "width": 80},
 		{
 			"label": _("Break Hrs"),
 			"fieldname": "break_hours",
 			"fieldtype": "Data",
 			"width": 70,
-			"align": "right"
+			"align": "right",
 		},
 		{
 			"label": _("Working Hrs"),
 			"fieldname": "working_hours",
 			"fieldtype": "Data",
 			"width": 90,
-			"align": "right"
+			"align": "right",
 		},
-		{
-			"label": _("Overtime"),
-			"fieldname": "overtime",
-			"fieldtype": "Data",
-			"width": 70,
-			"align": "right"
-		},
+		{"label": _("Overtime"), "fieldname": "overtime", "fieldtype": "Data", "width": 70, "align": "right"},
 		{
 			"label": _("ERPNext Timesheet"),
 			"fieldname": "timesheet",
 			"fieldtype": "Link",
 			"options": "Timesheet",
-			"width": 130
+			"width": 130,
 		},
-		{
-			"label": _("Remarks"),
-			"fieldname": "remarks",
-			"fieldtype": "Data",
-			"width": 150
-		}
+		{"label": _("Remarks"), "fieldname": "remarks", "fieldtype": "Data", "width": 150},
 	]
 
 
@@ -162,7 +116,8 @@ def get_data(filters):
 		conditions += " AND ptd.employee = %(employee)s"
 		params["employee"] = filters.get("employee")
 
-	data = frappe.db.sql(f"""
+	data = frappe.db.sql(
+		f"""
 		SELECT
 			pt.date,
 			pt.name as project_timesheet,
@@ -183,27 +138,32 @@ def get_data(filters):
 		INNER JOIN `tabProject Timesheet` pt ON pt.name = ptd.parent
 		WHERE {conditions}
 		ORDER BY pt.date DESC, ptd.employee_name, ptd.external_worker_name
-	""", params, as_dict=True)
+	""",
+		params,
+		as_dict=True,
+	)
 
 	# Format data
 	result = []
 	for row in data:
-		result.append({
-			"date": row.date,
-			"project_timesheet": row.project_timesheet,
-			"employee": row.employee,
-			"worker_name": row.employee_name or row.external_worker_name,
-			"worker_type": "Employee" if row.employee else "External",
-			"project": row.project,
-			"checkin": format_time(row.checkin),
-			"checkout": format_time(row.checkout),
-			"checkin_2": format_time(row.checkin_2),
-			"checkout_2": format_time(row.checkout_2),
-			"break_hours": format_number(row.break_hours),
-			"working_hours": format_number(row.working_hours),
-			"overtime": format_number(row.overtime),
-			"timesheet": row.timesheet,
-			"remarks": row.remarks
-		})
+		result.append(
+			{
+				"date": row.date,
+				"project_timesheet": row.project_timesheet,
+				"employee": row.employee,
+				"worker_name": row.employee_name or row.external_worker_name,
+				"worker_type": "Employee" if row.employee else "External",
+				"project": row.project,
+				"checkin": format_time(row.checkin),
+				"checkout": format_time(row.checkout),
+				"checkin_2": format_time(row.checkin_2),
+				"checkout_2": format_time(row.checkout_2),
+				"break_hours": format_number(row.break_hours),
+				"working_hours": format_number(row.working_hours),
+				"overtime": format_number(row.overtime),
+				"timesheet": row.timesheet,
+				"remarks": row.remarks,
+			}
+		)
 
 	return result

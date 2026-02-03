@@ -5,7 +5,7 @@ frappe.ui.form.on("Project Timesheet", {
 	refresh(frm) {
 		// Add custom button to fetch employees from a team/department
 		if (!frm.doc.docstatus) {
-			frm.add_custom_button(__("Fetch Employees"), function() {
+			frm.add_custom_button(__("Fetch Employees"), function () {
 				frm.trigger("fetch_employees");
 			});
 		}
@@ -20,17 +20,17 @@ frappe.ui.form.on("Project Timesheet", {
 					fieldname: "department",
 					fieldtype: "Link",
 					label: __("Department"),
-					options: "Department"
+					options: "Department",
 				},
 				{
 					fieldname: "designation",
 					fieldtype: "Link",
 					label: __("Designation"),
-					options: "Designation"
-				}
+					options: "Designation",
+				},
 			],
 			primary_action_label: __("Fetch"),
-			primary_action: function(values) {
+			primary_action: function (values) {
 				frappe.call({
 					method: "frappe.client.get_list",
 					args: {
@@ -38,17 +38,17 @@ frappe.ui.form.on("Project Timesheet", {
 						filters: {
 							status: "Active",
 							...(values.department && { department: values.department }),
-							...(values.designation && { designation: values.designation })
+							...(values.designation && { designation: values.designation }),
 						},
 						fields: ["name", "employee_name", "designation"],
-						limit_page_length: 0
+						limit_page_length: 0,
 					},
-					callback: function(r) {
+					callback: function (r) {
 						if (r.message) {
-							r.message.forEach(emp => {
+							r.message.forEach((emp) => {
 								// Check if employee already exists in table
 								let exists = frm.doc.project_timesheet_details.some(
-									row => row.employee === emp.name
+									(row) => row.employee === emp.name
 								);
 								if (!exists) {
 									let row = frm.add_child("project_timesheet_details");
@@ -63,10 +63,10 @@ frappe.ui.form.on("Project Timesheet", {
 							frm.refresh_field("project_timesheet_details");
 							frm.trigger("calculate_totals");
 						}
-					}
+					},
 				});
 				d.hide();
-			}
+			},
 		});
 		d.show();
 	},
@@ -75,14 +75,14 @@ frappe.ui.form.on("Project Timesheet", {
 		let total_working = 0;
 		let total_overtime = 0;
 
-		frm.doc.project_timesheet_details.forEach(row => {
+		frm.doc.project_timesheet_details.forEach((row) => {
 			total_working += flt(row.working_hours);
 			total_overtime += flt(row.overtime);
 		});
 
 		frm.set_value("total_working_hours", total_working);
 		frm.set_value("total_overtime", total_overtime);
-	}
+	},
 });
 
 frappe.ui.form.on("Project Timesheet Details", {
@@ -108,7 +108,7 @@ frappe.ui.form.on("Project Timesheet Details", {
 
 	project_timesheet_details_remove(frm) {
 		frm.trigger("calculate_totals");
-	}
+	},
 });
 
 function calculate_row_hours(frm, cdt, cdn) {

@@ -1,10 +1,11 @@
 # Copyright (c) 2026, CME and contributors
 # For license information, please see license.txt
 
+import calendar
+
 import frappe
 from frappe import _
-from frappe.utils import getdate, get_first_day, get_last_day, add_days, flt
-import calendar
+from frappe.utils import add_days, flt, get_first_day, get_last_day, getdate
 
 
 def execute(filters=None):
@@ -48,19 +49,14 @@ def format_number(value):
 
 def get_columns(num_days, first_day):
 	columns = [
-		{
-			"label": _("Employee/Worker"),
-			"fieldname": "employee_name",
-			"fieldtype": "Data",
-			"width": 180
-		},
+		{"label": _("Employee/Worker"), "fieldname": "employee_name", "fieldtype": "Data", "width": 180},
 		{
 			"label": _("Employee ID"),
 			"fieldname": "employee",
 			"fieldtype": "Link",
 			"options": "Employee",
-			"width": 120
-		}
+			"width": 120,
+		},
 	]
 
 	# Add column for each day with day name
@@ -68,31 +64,35 @@ def get_columns(num_days, first_day):
 	for day in range(1, num_days + 1):
 		date = add_days(first_day, day - 1)
 		day_name = day_names_short[date.weekday()]
-		columns.append({
-			"label": f"{day_name}<br>{day}",
-			"fieldname": f"day_{day}",
-			"fieldtype": "Data",
-			"width": 45,
-			"align": "center"
-		})
+		columns.append(
+			{
+				"label": f"{day_name}<br>{day}",
+				"fieldname": f"day_{day}",
+				"fieldtype": "Data",
+				"width": 45,
+				"align": "center",
+			}
+		)
 
 	# Total columns
-	columns.extend([
-		{
-			"label": _("Total Hours"),
-			"fieldname": "total_hours",
-			"fieldtype": "Data",
-			"width": 100,
-			"align": "right"
-		},
-		{
-			"label": _("Total OT"),
-			"fieldname": "total_overtime",
-			"fieldtype": "Data",
-			"width": 80,
-			"align": "right"
-		}
-	])
+	columns.extend(
+		[
+			{
+				"label": _("Total Hours"),
+				"fieldname": "total_hours",
+				"fieldtype": "Data",
+				"width": 100,
+				"align": "right",
+			},
+			{
+				"label": _("Total OT"),
+				"fieldname": "total_overtime",
+				"fieldtype": "Data",
+				"width": 80,
+				"align": "right",
+			},
+		]
+	)
 
 	return columns
 
@@ -111,7 +111,8 @@ def get_data(first_day, last_day, num_days, project=None, company=None):
 		params["company"] = company
 
 	# Get all timesheet details for the month
-	entries = frappe.db.sql(f"""
+	entries = frappe.db.sql(
+		f"""
 		SELECT
 			ptd.employee,
 			ptd.employee_name,
@@ -124,7 +125,10 @@ def get_data(first_day, last_day, num_days, project=None, company=None):
 		WHERE {conditions}
 		GROUP BY ptd.employee, ptd.employee_name, ptd.external_worker_name, pt.date
 		ORDER BY ptd.employee_name, ptd.external_worker_name, pt.date
-	""", params, as_dict=True)
+	""",
+		params,
+		as_dict=True,
+	)
 
 	# Organize data by employee/worker
 	employee_data = {}
@@ -143,7 +147,7 @@ def get_data(first_day, last_day, num_days, project=None, company=None):
 				"employee_name": name,
 				"days": {},
 				"total_hours": 0,
-				"total_overtime": 0
+				"total_overtime": 0,
 			}
 
 		day_num = getdate(entry.date).day
@@ -153,12 +157,12 @@ def get_data(first_day, last_day, num_days, project=None, company=None):
 
 	# Convert to list format
 	data = []
-	for key, emp in employee_data.items():
+	for _key, emp in employee_data.items():
 		row = {
 			"employee": emp["employee"],
 			"employee_name": emp["employee_name"],
 			"total_hours": format_number(emp["total_hours"]),
-			"total_overtime": format_number(emp["total_overtime"])
+			"total_overtime": format_number(emp["total_overtime"]),
 		}
 		# Add day columns
 		for day in range(1, num_days + 1):
@@ -184,13 +188,8 @@ def get_chart(data, num_days):
 	return {
 		"data": {
 			"labels": [str(d) for d in range(1, num_days + 1)],
-			"datasets": [
-				{
-					"name": _("Total Hours"),
-					"values": daily_totals
-				}
-			]
+			"datasets": [{"name": _("Total Hours"), "values": daily_totals}],
 		},
 		"type": "bar",
-		"height": 200
+		"height": 200,
 	}

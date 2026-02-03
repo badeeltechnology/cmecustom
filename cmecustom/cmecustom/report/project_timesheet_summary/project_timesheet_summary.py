@@ -38,20 +38,15 @@ def get_columns(group_by):
 				"fieldname": "employee",
 				"fieldtype": "Link",
 				"options": "Employee",
-				"width": 120
+				"width": 120,
 			},
 			{
 				"label": _("Employee/Worker Name"),
 				"fieldname": "worker_name",
 				"fieldtype": "Data",
-				"width": 180
+				"width": 180,
 			},
-			{
-				"label": _("Type"),
-				"fieldname": "worker_type",
-				"fieldtype": "Data",
-				"width": 80
-			}
+			{"label": _("Type"), "fieldname": "worker_type", "fieldtype": "Data", "width": 80},
 		]
 	elif group_by == "Project":
 		columns = [
@@ -60,14 +55,9 @@ def get_columns(group_by):
 				"fieldname": "project",
 				"fieldtype": "Link",
 				"options": "Project",
-				"width": 150
+				"width": 150,
 			},
-			{
-				"label": _("Project Name"),
-				"fieldname": "project_name",
-				"fieldtype": "Data",
-				"width": 200
-			}
+			{"label": _("Project Name"), "fieldname": "project_name", "fieldtype": "Data", "width": 200},
 		]
 	elif group_by == "Employee and Project":
 		columns = [
@@ -76,59 +66,51 @@ def get_columns(group_by):
 				"fieldname": "employee",
 				"fieldtype": "Link",
 				"options": "Employee",
-				"width": 120
+				"width": 120,
 			},
 			{
 				"label": _("Employee/Worker Name"),
 				"fieldname": "worker_name",
 				"fieldtype": "Data",
-				"width": 180
+				"width": 180,
 			},
-			{
-				"label": _("Type"),
-				"fieldname": "worker_type",
-				"fieldtype": "Data",
-				"width": 80
-			},
+			{"label": _("Type"), "fieldname": "worker_type", "fieldtype": "Data", "width": 80},
 			{
 				"label": _("Project"),
 				"fieldname": "project",
 				"fieldtype": "Link",
 				"options": "Project",
-				"width": 120
-			}
+				"width": 120,
+			},
 		]
 
 	# Common columns
-	columns.extend([
-		{
-			"label": _("Total Days"),
-			"fieldname": "total_days",
-			"fieldtype": "Int",
-			"width": 80
-		},
-		{
-			"label": _("Working Hours"),
-			"fieldname": "working_hours",
-			"fieldtype": "Data",
-			"width": 100,
-			"align": "right"
-		},
-		{
-			"label": _("Overtime"),
-			"fieldname": "overtime",
-			"fieldtype": "Data",
-			"width": 80,
-			"align": "right"
-		},
-		{
-			"label": _("Total Hours"),
-			"fieldname": "total_hours",
-			"fieldtype": "Data",
-			"width": 100,
-			"align": "right"
-		}
-	])
+	columns.extend(
+		[
+			{"label": _("Total Days"), "fieldname": "total_days", "fieldtype": "Int", "width": 80},
+			{
+				"label": _("Working Hours"),
+				"fieldname": "working_hours",
+				"fieldtype": "Data",
+				"width": 100,
+				"align": "right",
+			},
+			{
+				"label": _("Overtime"),
+				"fieldname": "overtime",
+				"fieldtype": "Data",
+				"width": 80,
+				"align": "right",
+			},
+			{
+				"label": _("Total Hours"),
+				"fieldname": "total_hours",
+				"fieldtype": "Data",
+				"width": 100,
+				"align": "right",
+			},
+		]
+	)
 
 	return columns
 
@@ -158,7 +140,8 @@ def get_data(filters, group_by):
 		params["employee"] = filters.get("employee")
 
 	if group_by == "Employee":
-		data = frappe.db.sql(f"""
+		data = frappe.db.sql(
+			f"""
 			SELECT
 				ptd.employee,
 				ptd.employee_name,
@@ -171,25 +154,31 @@ def get_data(filters, group_by):
 			WHERE {conditions}
 			GROUP BY ptd.employee, ptd.employee_name, ptd.external_worker_name
 			ORDER BY ptd.employee_name, ptd.external_worker_name
-		""", params, as_dict=True)
+		""",
+			params,
+			as_dict=True,
+		)
 
 		result = []
 		for row in data:
 			working = flt(row.working_hours)
 			ot = flt(row.overtime)
-			result.append({
-				"employee": row.employee,
-				"worker_name": row.employee_name or row.external_worker_name,
-				"worker_type": "Employee" if row.employee else "External",
-				"total_days": row.total_days,
-				"working_hours": format_number(working),
-				"overtime": format_number(ot),
-				"total_hours": format_number(working + ot)
-			})
+			result.append(
+				{
+					"employee": row.employee,
+					"worker_name": row.employee_name or row.external_worker_name,
+					"worker_type": "Employee" if row.employee else "External",
+					"total_days": row.total_days,
+					"working_hours": format_number(working),
+					"overtime": format_number(ot),
+					"total_hours": format_number(working + ot),
+				}
+			)
 		return result
 
 	elif group_by == "Project":
-		data = frappe.db.sql(f"""
+		data = frappe.db.sql(
+			f"""
 			SELECT
 				ptd.project,
 				p.project_name,
@@ -202,24 +191,30 @@ def get_data(filters, group_by):
 			WHERE {conditions}
 			GROUP BY ptd.project, p.project_name
 			ORDER BY ptd.project
-		""", params, as_dict=True)
+		""",
+			params,
+			as_dict=True,
+		)
 
 		result = []
 		for row in data:
 			working = flt(row.working_hours)
 			ot = flt(row.overtime)
-			result.append({
-				"project": row.project or "(No Project)",
-				"project_name": row.project_name or "(No Project)",
-				"total_days": row.total_days,
-				"working_hours": format_number(working),
-				"overtime": format_number(ot),
-				"total_hours": format_number(working + ot)
-			})
+			result.append(
+				{
+					"project": row.project or "(No Project)",
+					"project_name": row.project_name or "(No Project)",
+					"total_days": row.total_days,
+					"working_hours": format_number(working),
+					"overtime": format_number(ot),
+					"total_hours": format_number(working + ot),
+				}
+			)
 		return result
 
 	elif group_by == "Employee and Project":
-		data = frappe.db.sql(f"""
+		data = frappe.db.sql(
+			f"""
 			SELECT
 				ptd.employee,
 				ptd.employee_name,
@@ -233,22 +228,27 @@ def get_data(filters, group_by):
 			WHERE {conditions}
 			GROUP BY ptd.employee, ptd.employee_name, ptd.external_worker_name, ptd.project
 			ORDER BY ptd.employee_name, ptd.external_worker_name, ptd.project
-		""", params, as_dict=True)
+		""",
+			params,
+			as_dict=True,
+		)
 
 		result = []
 		for row in data:
 			working = flt(row.working_hours)
 			ot = flt(row.overtime)
-			result.append({
-				"employee": row.employee,
-				"worker_name": row.employee_name or row.external_worker_name,
-				"worker_type": "Employee" if row.employee else "External",
-				"project": row.project or "(No Project)",
-				"total_days": row.total_days,
-				"working_hours": format_number(working),
-				"overtime": format_number(ot),
-				"total_hours": format_number(working + ot)
-			})
+			result.append(
+				{
+					"employee": row.employee,
+					"worker_name": row.employee_name or row.external_worker_name,
+					"worker_type": "Employee" if row.employee else "External",
+					"project": row.project or "(No Project)",
+					"total_days": row.total_days,
+					"working_hours": format_number(working),
+					"overtime": format_number(ot),
+					"total_hours": format_number(working + ot),
+				}
+			)
 		return result
 
 	return []
@@ -273,17 +273,11 @@ def get_chart(data, group_by):
 		"data": {
 			"labels": labels,
 			"datasets": [
-				{
-					"name": _("Working Hours"),
-					"values": working_hours
-				},
-				{
-					"name": _("Overtime"),
-					"values": overtime
-				}
-			]
+				{"name": _("Working Hours"), "values": working_hours},
+				{"name": _("Overtime"), "values": overtime},
+			],
 		},
 		"type": "bar",
 		"height": 300,
-		"colors": ["#5e64ff", "#ff5858"]
+		"colors": ["#5e64ff", "#ff5858"],
 	}
