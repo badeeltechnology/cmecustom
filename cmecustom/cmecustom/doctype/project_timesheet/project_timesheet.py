@@ -223,6 +223,26 @@ class ProjectTimesheet(Document):
 		# Two periods overlap if one starts before the other ends
 		return start1 < end2 and start2 < end1
 
+	def calculate_shift_hours(self, checkin, checkout):
+		"""Calculate hours for a shift, handling overnight shifts"""
+		if not checkin or not checkout:
+			return 0
+
+		checkin_time = get_time(checkin)
+		checkout_time = get_time(checkout)
+
+		# Convert to minutes for easier calculation
+		checkin_minutes = checkin_time.hour * 60 + checkin_time.minute
+		checkout_minutes = checkout_time.hour * 60 + checkout_time.minute
+
+		# If checkout is earlier than checkin, it's an overnight shift
+		if checkout_minutes <= checkin_minutes:
+			# Add 24 hours (1440 minutes) to checkout
+			checkout_minutes += 1440
+
+		diff_minutes = checkout_minutes - checkin_minutes
+		return diff_minutes / 60  # Return hours
+
 	def calculate_hours(self):
 		"""Calculate working hours and overtime for each row"""
 		standard_hours = 8  # Standard working hours per day
@@ -232,7 +252,7 @@ class ProjectTimesheet(Document):
 
 			# Calculate first shift hours
 			if row.checkin and row.checkout:
-				shift1_hours = time_diff_in_hours(row.checkout, row.checkin)
+				shift1_hours = self.calculate_shift_hours(row.checkin, row.checkout)
 				if shift1_hours > 0:
 					total_hours += shift1_hours
 
@@ -247,7 +267,7 @@ class ProjectTimesheet(Document):
 					and checkout_2.hour == 0
 					and checkout_2.minute == 0
 				):
-					shift2_hours = time_diff_in_hours(row.checkout_2, row.checkin_2)
+					shift2_hours = self.calculate_shift_hours(row.checkin_2, row.checkout_2)
 					if shift2_hours > 0:
 						total_hours += shift2_hours
 

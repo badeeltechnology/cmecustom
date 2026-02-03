@@ -156,5 +156,12 @@ function time_diff_in_hours(end_time, start_time) {
 	let end = moment(end_time, "HH:mm:ss");
 
 	let diff = moment.duration(end.diff(start));
-	return diff.asHours();
+	let hours = diff.asHours();
+
+	// Handle overnight shift (end time is earlier than start time)
+	if (hours <= 0) {
+		hours += 24;
+	}
+
+	return hours;
 }
