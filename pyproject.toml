@@ -4,7 +4,7 @@ authors = [
     { name = "Badeel Technology", email = "support@badeeltechnology.com"}
 ]
 description = "This app consist of CME Customization"
-requires-python = ">=3.14"
+requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
 dependencies = [
